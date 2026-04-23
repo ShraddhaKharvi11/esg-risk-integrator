@@ -1,19 +1,28 @@
 from flask import Blueprint, request, jsonify
 from services.groq_client import generate_response
+from services.security import sanitize_input, is_malicious
 
 generate_bp = Blueprint("generate", __name__)
 
 @generate_bp.route("/generate-report", methods=["POST"])
 def generate_report():
-    data = request.json
+    data = request.json or {}
+
+    # sanitize inputs
+    E = sanitize_input(data.get("E"))
+    S = sanitize_input(data.get("S"))
+    G = sanitize_input(data.get("G"))
+
+    # simple malicious check (if any text fields are added later)
+    if any(is_malicious(str(v)) for v in [E, S, G]):
+        return jsonify({"error": "Malicious input detected"}), 400
 
     prompt = f"""
-    Analyze the following ESG data and generate a report:
-    
-    Environmental Score: {data.get("E")}
-    Social Score: {data.get("S")}
-    Governance Score: {data.get("G")}
-    
+    Analyze ESG data:
+    Environmental: {E}
+    Social: {S}
+    Governance: {G}
+
     Provide:
     - Summary
     - Risks
