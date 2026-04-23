@@ -5,7 +5,6 @@ from flask_limiter.util import get_remote_address
 
 app = Flask(__name__)
 
-# limit: 30 requests per minute
 limiter = Limiter(
     get_remote_address,
     app=app,
@@ -14,9 +13,11 @@ limiter = Limiter(
 
 app.register_blueprint(generate_bp)
 
+
 @app.route("/")
 def home():
     return "AI Service Running"
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
