@@ -5,12 +5,14 @@ from flask_limiter.util import get_remote_address
 
 app = Flask(__name__)
 
+# Global limiter
 limiter = Limiter(
-    get_remote_address,
+    key_func=get_remote_address,
     app=app,
     default_limits=["30 per minute"]
 )
 
+# Register blueprint
 app.register_blueprint(generate_bp)
 
 
@@ -20,4 +22,4 @@ def home():
 
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    app.run(debug=True, port=5000)
