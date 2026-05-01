@@ -15,6 +15,9 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
+# Simple in-memory cache
+CACHE = {}
+
 
 def _fallback():
     return {
@@ -27,6 +30,10 @@ def _fallback():
     }
 
 
+def get_cache_key(prompt):
+    return hash(prompt)
+
+
 def clean_ai_response(content):
     content = re.sub(r"```json", "", content)
     content = re.sub(r"```", "", content)
@@ -34,6 +41,12 @@ def clean_ai_response(content):
 
 
 def generate_response(prompt, retries=3):
+    cache_key = get_cache_key(prompt)
+
+    # Return cached response if available
+    if cache_key in CACHE:
+        return CACHE[cache_key]
+
     data = {
         "model": "llama-3.3-70b-versatile",
         "temperature": 0.2,
@@ -44,7 +57,13 @@ def generate_response(prompt, retries=3):
 
     for attempt in range(retries):
         try:
-            response = requests.post(URL, headers=HEADERS, json=data, timeout=10)
+            response = requests.post(
+                URL,
+                headers=HEADERS,
+                json=data,
+                timeout=6
+            )
+
             result = response.json()
 
             if "choices" in result:
@@ -59,11 +78,16 @@ def generate_response(prompt, retries=3):
                     try:
                         parsed = json.loads(json_str)
                         parsed["is_fallback"] = False
+
+                        # Cache successful response
+                        CACHE[cache_key] = parsed
+
                         return parsed
+
                     except:
                         pass
 
-                return {
+                fallback_response = {
                     "title": "ESG Report",
                     "summary": "AI response not structured properly.",
                     "overview": content[:500],
@@ -72,8 +96,16 @@ def generate_response(prompt, retries=3):
                     "is_fallback": True
                 }
 
+                CACHE[cache_key] = fallback_response
+
+                return fallback_response
+
         except Exception as e:
             print(f"Attempt {attempt+1} failed:", e)
             time.sleep(2)
 
-    return _fallback()
+    fallback_response = _fallback()
+
+    CACHE[cache_key] = fallback_response
+
+    return fallback_response
