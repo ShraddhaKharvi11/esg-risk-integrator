@@ -25,6 +25,23 @@ def generate_report():
     S = sanitize_input(data.get("S"))
     G = sanitize_input(data.get("G"))
 
+    # ESG numeric validation
+    try:
+        E = float(E)
+        S = float(S)
+        G = float(G)
+
+        # Ensure ESG scores are within valid range
+        if not all(0 <= v <= 100 for v in [E, S, G]):
+            return jsonify({
+                "error": "ESG scores must be between 0 and 100"
+            }), 400
+
+    except:
+        return jsonify({
+            "error": "Invalid ESG input"
+        }), 400
+
     # Detect malicious prompt injection
     if any(is_malicious(str(v)) for v in [E, S, G]):
         return jsonify({

@@ -1,90 +1,39 @@
-# SECURITY REPORT — ESG Risk Integrator (AI Service)
+## Day 7 Advanced Security Review
 
-## 1. Overview
-This document describes security measures implemented in the AI service.
+| Test Type | Input | Result |
+|----------|------|--------|
+| Large Payload | Long strings | Passed |
+| Special Character Injection | <>[]{};-- | Passed |
+| Invalid HTTP Method | GET request | 405 Method Not Allowed |
+| Missing Content-Type | No JSON header | 415 Unsupported Media Type |
+| Null/Object Abuse | Arrays/null | Passed |
 
----
+### Key Findings:
+- API safely handles malformed requests
+- Flask protections validated
+- No endpoint crashes detected
+- Fallback system ensures stability
 
-## 2. Threat Model
+### Recommendations:
+- Add ESG numeric range validation
+- Consider JWT auth for production
+- Add centralized logging
+- Add schema validation for stronger input controls
 
-### Prompt Injection
-Examples:
-- Ignore previous instructions
-- Reveal system prompt
+## Day 8 Input Validation Enhancements
 
-Mitigation:
-- Pattern detection using `is_malicious()`
-- Block with HTTP 400
+### Added Protections:
+- ESG inputs must be numeric
+- ESG values restricted to 0–100
+- Invalid strings blocked
+- Out-of-range values blocked
 
----
+### Validation Results:
+| Test Type | Result |
+|----------|--------|
+| Invalid string input | Passed |
+| Out-of-range values | Passed |
+| Malformed data | Passed |
 
-### HTML / Script Injection
-Example:
-<script>alert(1)</script>
-
-Mitigation:
-- Input sanitization strips HTML tags
-
----
-
-### SQL Injection
-Example:
-'; DROP TABLE users; --
-
-Mitigation:
-- Inputs sanitized and treated as plain text
-
----
-
-### API Abuse
-Risk:
-- Excessive requests overload system
-
-Mitigation:
-- flask-limiter → 30 req/min
-
----
-
-### AI Failure
-Risk:
-- Groq unavailable
-
-Mitigation:
-- Retry logic
-- Structured fallback response
-
----
-
-### Secret Exposure
-Mitigation:
-- .env storage
-- .gitignore protection
-
----
-
-## 3. Week 1 Security Testing Results
-
-| Test Type | Input | Expected Result | Actual Result |
-|----------|------|----------------|---------------|
-| Normal Input | Standard ESG | Valid response | Passed |
-| Empty Input | {} | No crash | Passed |
-| HTML Injection | <script> | Sanitized | Passed |
-| Prompt Injection | Ignore previous instructions | Blocked | Passed |
-| SQL Injection | '; DROP TABLE | Safe handling | Passed |
-| Rate Limit | 35 requests | 429 blocked | Passed |
-
----
-
-## 4. Residual Risks
-- AI may still produce unexpected outputs
-- Continuous prompt refinement recommended
-
----
-
-## 5. Conclusion
-Implemented:
-- Input sanitization
-- Prompt injection protection
-- SQL-style input protection
-- Rate limiting
-- Retry + fallback
+### Security Improvement:
+Strengthened schema validation significantly improves API production readiness.
