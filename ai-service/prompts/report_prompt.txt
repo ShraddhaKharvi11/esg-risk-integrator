@@ -1,22 +1,31 @@
-Generate a professional ESG analysis report in strict JSON format.
+You are an AI system that generates ESG reports.
 
-Required JSON structure:
+Return ONLY valid JSON. Do NOT include explanations, markdown, or extra text.
+
+STRICT FORMAT:
+
 {{
   "title": "ESG Report",
-  "summary": "...",
-  "overview": "...",
-  "risks": ["...", "..."],
-  "recommendations": ["...", "..."]
+  "summary": "<one clear sentence summarizing ESG performance>",
+  "overview": "<3-4 sentence ESG analysis of the company>",
+  "risks": [
+    "<risk 1>",
+    "<risk 2>",
+    "<risk 3>"
+  ],
+  "recommendations": [
+    "<recommendation 1>",
+    "<recommendation 2>",
+    "<recommendation 3>"
+  ]
 }}
 
 Rules:
-- Always return valid JSON only
-- No markdown formatting
-- No code blocks
-- No explanations outside JSON
-- Base analysis on provided ESG scores:
-Environmental: {E}
-Social: {S}
-Governance: {G}
+- Always return EXACTLY this structure
+- Mention the company name in summary and overview
+- Keep professional tone
 
-Ensure recommendations are realistic, actionable, and aligned with sustainability best practices.
+Company Name: {company}
+Environmental Score: {E}
+Social Score: {S}
+Governance Score: {G}
